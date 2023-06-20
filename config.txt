@@ -1,0 +1,2 @@
+[DATABASE]
+db_file_name = D:\Projects\Pharmanger\pharman.db

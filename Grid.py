@@ -1,8 +1,15 @@
 from tkinter import *
+from functools import partial
+import utils
 
 
 class Grid:
-    def __init__(self, parent, row, column, header, data=[]):
+    def __init__(self, parent, row, column, header, data=[], row_delete_enabled=False):
+        self.row_delete_enabled = row_delete_enabled
+        self.header = header
+        self.original_data = data
+        self.data = self.original_data
+
         self.frame = Frame(parent)
         self.frame.grid(row=row, column=column, columnspan=2)
 
@@ -16,22 +23,31 @@ class Grid:
 
         self.data_rows_frame = Frame(self.frame)
         self.data_rows_frame.grid(sticky=W, row=1, column=0)
-        self.original_data = data
-        self.data = self.original_data
         self.render_data()
 
     def render_data(self):
         for item in self.data_rows_frame.winfo_children():
             item.destroy()
 
+        last_grid_column_index = 0
         for row_index in range(len(self.data)):
-            for column_index in range(len(self.data[row_index])):
+            for column_index in range(len(self.header)):
                 cell = Entry(self.data_rows_frame, width=20, font=('Arial', 16, 'bold'))
                 cell.grid(row=row_index, column=column_index)
                 cell.insert(END, self.data[row_index][column_index])
+                last_grid_column_index = column_index
+            if self.row_delete_enabled:
+                delete_row_button = Button(self.data_rows_frame, text="Remove", width=6,
+                                           font=('Arial', 12),
+                                           command=partial(self.on_delete_grid_entry, row_index))
+                delete_row_button.grid(sticky=E, row=row_index, column=last_grid_column_index + 1, pady=5, padx=5)
 
     def update_data(self, new_data):
         self.data = new_data
+        self.render_data()
+
+    def on_delete_grid_entry(self, row_index):
+        self.data.pop(row_index)
         self.render_data()
 
 
@@ -41,38 +57,39 @@ class GridEx(Grid):
         self.frame.grid(row=row, column=column, columnspan=2)
 
         self.top_filters_frame = Frame(self.frame)
-        self.top_filters_frame.grid(row=0, column=0, columnspan=2)
+        self.top_filters_frame.grid(row=0, column=0, columnspan=2, sticky=W)
 
         self.grid_data_frame = Frame(self.frame)
         self.grid_data_frame.grid(row=1, column=0, columnspan=2)
 
         Grid.__init__(self, self.grid_data_frame, row, column, header, data)
-        self.filter_enabled_counts = filter_enabled_columns
-        self.filter_text = None
+        self.filter_enabled_columns = filter_enabled_columns
+        self.filter_texts = [None] * len(header)
+        self.filter_text_boxes = [None] * len(header)
 
         row = 0
         for index in range(len(filter_enabled_columns)):
             if filter_enabled_columns[index]:
                 label_text = "Filter by " + header[index]
-                Label(self.top_filters_frame, text=label_text).grid(row=row, column=0)
-                self.filter_text_box = Entry(self.top_filters_frame)
-                self.filter_text_box.grid(row=row, column=1)
-                self.filter_text_box.bind("<Key>", self.filter_text_update)
+                Label(self.top_filters_frame, text=label_text).grid(row=row, column=0, sticky=W)
+                filter_text_box = Entry(self.top_filters_frame)
+                filter_text_box.grid(row=row, column=1, sticky=W)
+                filter_text_box.bind("<Key>", partial(self.filter_text_update, index))
+                self.filter_text_boxes[index] = filter_text_box
+                row += 1
 
-    def filter_text_update(self, e):
-        self.filter_text = self.filter_text_box.get()
-        if e.char == "\b":  # if backspace remove last character
-            self.filter_text = self.filter_text[:len(self.filter_text) - 1]
-        else:
-            self.filter_text = self.filter_text + e.char
+    def filter_text_update(self, index, e):
+        self.filter_texts[index] = utils.transform_str_on_keyboard_input(self.filter_text_boxes[index].get(), e.char)
         self.filter_data()
         self.render_data()
 
     def filter_data(self):
-        if self.filter_text is None or len(self.filter_text) == 0:
-            self.data = self.original_data
-            return
+        self.data = self.original_data
+        print("Grid Filter Data {}".format(self.filter_texts))
+        for index in range(len(self.filter_texts)):
+            if self.filter_texts[index] is None or len(self.filter_texts[index]) == 0:
+                continue
 
-        self.data = \
-            list(filter(lambda x:
-                        (str.lower(self.filter_text) in str.lower(x[0])), self.original_data))
+            self.data = \
+                list(filter(lambda x:
+                            (str.lower(self.filter_texts[index]) in str.lower(x[index])), self.data))

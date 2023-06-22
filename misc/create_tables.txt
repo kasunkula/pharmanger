@@ -1,0 +1,44 @@
+create_table_inventory = '''CREATE TABLE INVENTORY
+                            (ID            TEXT    NOT NULL,
+                            NAME            TEXT    NOT NULL PRIMARY KEY,
+                            UNITS            INT    NOT NULL,
+                            SUPPLIER        TEXT    NOT NULL,
+                            CONTACT_NUMBER    TEXT    NOT NULL,
+                            EMAIL            TEXT    NOT NULL)'''
+
+insert_statement_inventory = '''INSERT INTO INVENTORY(ID,NAME,UNITS,SUPPLIER,CONTACT_NUMBER,EMAIL) 
+                                VALUES (?,?,?,?,?,?) '''
+
+create_table_stock_update = ''' CREATE TABLE STOCK_UPDATE
+                                (ID            TEXT    NOT NULL PRIMARY KEY,
+                                ITEM_NAME        TEXT        NOT NULL,
+                                ITEM_ID        TEXT        NOT NULL,
+                                UNITS          INT     NOT NULL,
+                                SUPPLIER       TEXT    NOT NULL,
+                                UNIT_PRICE    REAL    NOT NULL,
+                                TOTAL_AMOUNT   REAL    NOT NULL)'''
+
+insert_statement_stock_update = ''' INSERT INTO STOCK_UPDATE(ID, ITEM_NAME, ITEM_ID, UNITS, SUPPLIER, UNIT_PRICE, TOTAL_AMOUNT) 
+                                    VALUES (?,?,?,?,?,?,?) '''
+
+create_table_bill = ''' CREATE TABLE BILL
+                        (ID            TEXT    NOT NULL PRIMARY KEY,
+                        DATE            TEXT    NOT NULL,
+                        DATETIME       TEXT    NOT NULL,
+                        DOCTOR        TEXT    NOT NULL,
+                        AMOUNT        REAL    NOT NULL)'''
+
+insert_statement_bill = '''INSERT INTO BILL(ID, DATE, DATETIME, DOCTOR, AMOUNT) VALUES (?,?,?,?,?) '''
+
+create_table_bill_detail = '''  CREATE TABLE BILL_DETAIL
+                                (ID            INT    NOT NULL PRIMARY KEY,
+                                BILL_ID        TEXT    NOT NULL,
+                                ITEM_ID        TEXT    NOT NULL,
+                                ITEM_NAME        TEXT        NOT NULL,
+                                UNITS        INT    NOT NULL,
+                                UNIT_PRICE     REAL    NOT NULL,
+                                TOTAL_AMOUNT    REAL    NOT NULL)'''
+
+insert_statement_bill_detail = '''  INSERT INTO BILL_DETAIL(ID, BILL_ID, ITEM_ID, ITEM_NAME, UNITS, UNIT_PRICE, 
+                                    TOTAL_AMOUNT) 
+                                    VALUES (?,?,?,?,?,?,?) '''

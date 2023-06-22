@@ -1,19 +1,22 @@
-import tkinter
 from tkinter import *
-import search_box
+
 import Grid
-import defines
-import utils
-import tkinter.messagebox
-import Grid
+from Window import Window
 
 
-class InventoryWindow:
+class InventoryWindow(Window):
     def __init__(self, parent, inventory):
         self.inventory = inventory
-        self.inventory_window = tkinter.Toplevel(parent)
-        self.inventory_window.title("Inventory")
-        self.inventory_grid = Grid.GridEx(self.inventory_window, 0, 0,
+        Window.__init__(self, parent, "Inventory")
+
+
+    def render(self):
+        Window.render(self)
+        self.inventory_grid = Grid.GridEx(self.main_window, 0, 0,
                                           ['Name', 'Stock', 'Supplier', 'Contact Number', 'Email', 'UID'],
-                                          self.inventory,
-                                          [True, False, False, False, False, False])
+                                          list(self.inventory.values()),
+                                          [True, False, True, False, False, False])
+
+    def update_inventory(self, inventory):
+        self.inventory = inventory
+        self.render()

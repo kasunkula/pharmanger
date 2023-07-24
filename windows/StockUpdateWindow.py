@@ -5,9 +5,9 @@ import tkinter.messagebox
 
 import sql_setup
 import defines
-import SearchBox
+from components import SearchBox
 import utils
-from Window import Window
+from windows.Window import Window
 
 
 class StockUpdateWindow(Window):
@@ -23,9 +23,9 @@ class StockUpdateWindow(Window):
 
     def render(self):
         Window.render(self)
-        self.name_search_box = SearchBox.SearchBox(self.main_window, 1, 0, "Name",
-                                                   [item[defines.col_index_inventory_name] for item in
-                                                    self.inventory.values()])
+        inventory_item_list = [item[defines.col_index_inventory_name] for item in self.inventory.values()]
+        self.name_search_box = SearchBox.SearchBox(self.main_window, 1, 0, "Name", inventory_item_list)
+
         Label(self.main_window, text="Stock", width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=2,
                                                                                          column=0,
                                                                                          pady=5, padx=5)
@@ -50,10 +50,10 @@ class StockUpdateWindow(Window):
         self.stock_update_total_amount = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
         self.stock_update_total_amount.grid(sticky=W, row=5, column=1, pady=5, padx=5)
 
-        add_item_button = tkinter.Button(self.main_window, text="Add Stock", width=20,
+        add_stock_button = tkinter.Button(self.main_window, text="Add Stock", width=20,
                                          font=('Arial', 16, 'bold'),
                                          command=self.on_add_stock_update)
-        add_item_button.grid(sticky=E, row=6, column=0, pady=5, padx=5)
+        add_stock_button.grid(sticky=E, row=6, column=1, pady=5, padx=5)
 
         self.stock_update_status_label = Label(self.main_window, text="", font=('Arial', 14, 'bold'))
         self.stock_update_status_label.grid(sticky=W, row=7, column=0, pady=5, padx=10)

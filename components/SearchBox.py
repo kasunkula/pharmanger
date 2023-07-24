@@ -4,7 +4,7 @@ import utils
 class SearchBox:
     def __init__(self, parent, row, column, label, data):
         self.frame = Frame(parent)
-        self.frame.grid(row=row, column=column, columnspan=2)
+        self.frame.grid(row=row, column=column, columnspan=2, sticky=W)
         Label(self.frame, text=label, width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=0, column=0,
                                                                                  pady=5, padx=5)
 

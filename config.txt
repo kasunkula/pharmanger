@@ -1,2 +1,4 @@
 [DATABASE]
 db_file_name = D:\Projects\Pharmanger\pharman.db
+drop_tables_and_recreate = NO
+config_sample_data = NO

@@ -1,7 +1,7 @@
 from tkinter import *
 
-import Grid
-from Window import Window
+from components import Grid
+from windows.Window import Window
 
 
 class InventoryWindow(Window):

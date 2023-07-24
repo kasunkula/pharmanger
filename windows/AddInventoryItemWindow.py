@@ -3,7 +3,10 @@ from tkinter import *
 import uuid
 import tkinter.messagebox
 import sql_setup
-from Window import Window
+from components.Form import Form
+from defines import DataType
+from windows.Window import Window
+
 
 class AddInventoryItemWindow(Window):
     def __init__(self, parent, inventory, db_con, inventory_dirty_callback):
@@ -12,27 +15,38 @@ class AddInventoryItemWindow(Window):
         self.inventory = inventory
         Window.__init__(self, parent, "Add New Inventory Item")
 
+    def render(self):
+        self.fields = [["Name", DataType.TEXT, True, True],
+                       ["Stock", DataType.INT, True, True],
+                       ["Supplier", DataType.TEXT, True, True],
+                       ["Contact Number", DataType.TEXT, True, True],
+                       ["Email", DataType.TEXT, True, True],
+                       ]
+        self.form = Form(self.main_window, self.fields, "Add New Item", submit_callback=self.on_add_new_item)
+
+    def render_ex(self):
+        Window.render(self)
         Label(self.main_window, text="Name", width=20, font=('Arial', 16, 'bold')).grid(sticky=W,
-                                                                                                          row=0,
-                                                                                                          column=0,
-                                                                                                          pady=5,
-                                                                                                          padx=5)
+                                                                                        row=0,
+                                                                                        column=0,
+                                                                                        pady=5,
+                                                                                        padx=5)
         self.add_item_name = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
         self.add_item_name.grid(sticky=W, row=0, column=1, pady=5, padx=5)
 
         Label(self.main_window, text="Stock", width=20, font=('Arial', 16, 'bold')).grid(sticky=W,
-                                                                                                           row=1,
-                                                                                                           column=0,
-                                                                                                           pady=5,
-                                                                                                           padx=5)
+                                                                                         row=1,
+                                                                                         column=0,
+                                                                                         pady=5,
+                                                                                         padx=5)
         self.add_item_stock = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
         self.add_item_stock.grid(sticky=W, row=1, column=1, pady=5, padx=5)
 
         Label(self.main_window, text="Supplier", width=20, font=('Arial', 16, 'bold')).grid(sticky=W,
-                                                                                                              row=2,
-                                                                                                              column=0,
-                                                                                                              pady=5,
-                                                                                                              padx=5)
+                                                                                            row=2,
+                                                                                            column=0,
+                                                                                            pady=5,
+                                                                                            padx=5)
         self.add_item_supplier = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
         self.add_item_supplier.grid(sticky=W, row=2, column=1, pady=5, padx=5)
 
@@ -44,10 +58,10 @@ class AddInventoryItemWindow(Window):
         self.add_item_contact_number.grid(sticky=W, row=3, column=1, pady=5, padx=5)
 
         Label(self.main_window, text="Email", width=20, font=('Arial', 16, 'bold')).grid(sticky=W,
-                                                                                                           row=4,
-                                                                                                           column=0,
-                                                                                                           pady=5,
-                                                                                                           padx=5)
+                                                                                         row=4,
+                                                                                         column=0,
+                                                                                         pady=5,
+                                                                                         padx=5)
         self.add_item_email = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
         self.add_item_email.grid(sticky=W, row=4, column=1, pady=5, padx=5)
 
@@ -56,8 +70,7 @@ class AddInventoryItemWindow(Window):
                                               command=self.on_add_new_item)
         self.add_item_button.grid(sticky=E, row=5, column=0, pady=5, padx=5)
 
-
-    def on_add_new_item(self):
+    def on_add_new_item_ex(self):
         name = self.add_item_name.get()
         stock = self.add_item_stock.get()
         supplier = self.add_item_supplier.get()
@@ -89,3 +102,16 @@ class AddInventoryItemWindow(Window):
             status = "New Item Added to the inventory as [" + name + "] with initial stock of [" + stock + "]"
             tkinter.messagebox.showinfo("Item Add Successful", status)
             self.inventory_dirty_callback("AddInventoryItemWindow")
+
+    def on_add_new_item(self, item):
+        uid = uuid.uuid4()
+        cur = self.db_con.cursor()
+        new_item = [str(uid)]
+        new_item.extend(item)
+        print(new_item)
+        cur.execute(sql_setup.insert_statement_inventory, new_item)
+        self.db_con.commit()
+        self.inventory_dirty_callback("AddInventoryItemWindow")
+        msg = "New Item Added to the inventory as [" + item[0] + "] with initial stock of [" + str(item[1]) + "]"
+        tkinter.messagebox.showinfo("Item Add Successful", msg)
+        self.form.render()

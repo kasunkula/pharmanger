@@ -5,12 +5,11 @@ from tkinter import *
 import tkinter.messagebox
 
 # local
-import SearchBox
-import Grid
+from components import SearchBox, Grid
 import defines
 import sql_setup
 import utils
-from Window import Window
+from windows.Window import Window
 
 
 class BillingWindow(Window):
@@ -61,7 +60,8 @@ class BillingWindow(Window):
         self.bill_entries = []
 
         self.bill_entries_grid = Grid.Grid(self.bill_entries_frame, 1, 0,
-                                           ["Item", "Units", "Unit Price", "Cost"], self.bill_entries)
+                                           ["Item", "Units", "Unit Price", "Cost"], self.bill_entries,
+                                           row_delete_enabled=True)
 
         self.add_bill_button = tkinter.Button(self.main_window, text="Add Bill", width=20,
                                               font=('Arial', 16, 'bold'),
@@ -118,5 +118,45 @@ class BillingWindow(Window):
             for bill_entry in bill_entries:
                 cur.execute(sql_setup.insert_statement_bill_detail, bill_entry)
             self.db_con.commit()
+            self.generate_bill()
             status = "Bill Successful with {} items totaling to Rs.{}".format(len(bill_entries), total_cost)
             tkinter.messagebox.showinfo("Billing Successful", status)
+
+
+    def generate_bill(self):
+        from fpdf import FPDF
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Hello, World!", ln=True)
+        pdf.output("output.pdf", 'F')
+        self.print_pdf_ex("output.pdf")
+
+    def print_pdf_ex(self, file_name):
+        import win32print, win32api
+        try:
+            win32api.ShellExecute(0, "printto", file_name,
+                                  '"%s"' % win32print.GetDefaultPrinter(),
+                                  ".", 0)
+            print("PDF sent to print successfully.")
+        except Exception as e:
+            print(f"An error occurred while printing: {str(e)}")
+
+    def print_pdf_working(self, file_name):
+        import pathlib
+        import printfactory
+        import subprocess
+        printer = printfactory.Printer()
+
+        acrobat = r'C:\Program Files\Adobe\Acrobat DC\Acrobat\Acrobat.exe'
+        cmd = '"{}" /N /T "{}" "{}"'.format(acrobat, file_name, "Foxit Editor PDF Printer")
+
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = proc.communicate()
+        exit_code = proc.wait()
+        print(exit_code)
+
+    def print_pdf(self, file_name):
+        import os
+        os.startfile(file_name)
+

@@ -13,9 +13,9 @@ class InventoryWindow(Window):
     def render(self):
         Window.render(self)
         self.inventory_grid = Grid.GridEx(self.main_window, 0, 0,
-                                          ['Name', 'Stock', 'Supplier', 'Contact Number', 'Email', 'UID'],
+                                          ['Name', 'Stock'],
                                           list(self.inventory.values()),
-                                          [True, False, True, False, False, False])
+                                          [True, False])
 
     def update_inventory(self, inventory):
         self.inventory = inventory

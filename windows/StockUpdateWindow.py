@@ -25,42 +25,34 @@ class StockUpdateWindow(Window):
         Window.render(self)
         inventory_item_list = [item[defines.col_index_inventory_name] for item in self.inventory.values()]
         self.name_search_box = SearchBox.SearchBox(self.main_window, 1, 0, "Name", inventory_item_list)
-
         Label(self.main_window, text="Stock", width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=2,
                                                                                          column=0,
-                                                                                         pady=5, padx=5)
+                                                                                         pady=5, padx=0)
         self.stock_update_stock = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
-        self.stock_update_stock.grid(sticky=W, row=2, column=1, pady=5, padx=5)
-
-        Label(self.main_window, text="Supplier", width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=3,
-                                                                                            column=0,
-                                                                                            pady=5, padx=5)
-        self.stock_update_supplier = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
-        self.stock_update_supplier.grid(sticky=W, row=3, column=1, pady=5, padx=5)
+        self.stock_update_stock.grid(sticky=W, row=2, column=1, pady=5, padx=0)
 
         Label(self.main_window, text="Unit Price", width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=4,
                                                                                               column=0, pady=5,
-                                                                                              padx=5)
+                                                                                              padx=0)
         self.stock_update_unit_price = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
-        self.stock_update_unit_price.grid(sticky=W, row=4, column=1, pady=5, padx=5)
+        self.stock_update_unit_price.grid(sticky=W, row=4, column=1, pady=5, padx=0)
 
         Label(self.main_window, text="Total Amount", width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=5,
                                                                                                 column=0,
-                                                                                                pady=5, padx=5)
+                                                                                                pady=5, padx=0)
         self.stock_update_total_amount = Entry(self.main_window, width=40, font=('Arial', 16, 'bold'))
-        self.stock_update_total_amount.grid(sticky=W, row=5, column=1, pady=5, padx=5)
+        self.stock_update_total_amount.grid(sticky=W, row=5, column=1, pady=5, padx=0)
 
         add_stock_button = tkinter.Button(self.main_window, text="Add Stock", width=20,
-                                         font=('Arial', 16, 'bold'),
-                                         command=self.on_add_stock_update)
-        add_stock_button.grid(sticky=E, row=6, column=1, pady=5, padx=5)
+                                          font=('Arial', 16, 'bold'),
+                                          command=self.on_add_stock_update)
+        add_stock_button.grid(sticky=E, row=6, column=1, pady=5, padx=0)
 
         self.stock_update_status_label = Label(self.main_window, text="", font=('Arial', 14, 'bold'))
-        self.stock_update_status_label.grid(sticky=W, row=7, column=0, pady=5, padx=10)
+        self.stock_update_status_label.grid(sticky=W, row=7, column=0, pady=5, padx=0)
 
     def on_add_stock_update(self):
         stock = self.stock_update_stock.get()
-        supplier = self.stock_update_supplier.get()
         unit_price = self.stock_update_unit_price.get()
         total_amount = self.stock_update_total_amount.get()
         status = None
@@ -69,8 +61,6 @@ class StockUpdateWindow(Window):
             status = "Item Selection invalid"
         elif stock is None or len(stock) == 0 or not utils.is_int(stock):
             status = "Specified Stock Invalid"
-        elif supplier is None or len(supplier) == 0:
-            status = "Specified Supplier Invalid"
         elif unit_price is None or len(unit_price) == 0 or not utils.is_float(unit_price):
             status = "Specified Unit Price Invalid"
         elif total_amount is None or len(total_amount) == 0 or \
@@ -88,7 +78,7 @@ class StockUpdateWindow(Window):
             cur = self.db_con.cursor()
 
             new_stock_update = [str(uid), inventory_item_name, inventory_item_id, int(stock),
-                                supplier, float(unit_price), float(total_amount)]
+                                float(unit_price), float(total_amount)]
             print(new_stock_update)
             cur.execute(sql_setup.insert_statement_stock_update, new_stock_update)
 

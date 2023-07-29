@@ -14,13 +14,15 @@ class AddEntityInstance(Window):
         self.inventory_dirty_callback = inventory_dirty_callback
         self.inventory = inventory
         self.entity_name = entity_name
+        self.fields = [["Name", DataType.TEXT, True, True],  # ["Name", DataType, MustFill, Enabled]
+                       ["SLMC Reg Number", DataType.TEXT, True, True],
+                       ["Specialization", DataType.TEXT, True, True],
+                       ["Description", DataType.TEXT, True, True]]
         Window.__init__(self, parent, "Add New " + entity_name)
 
     def render(self):
-        fields = [["Name", DataType.TEXT, True, True],
-                  ["Description", DataType.INT, True, True],
-                  ]
-        self.form = Form(self.main_window, fields, "Add New " + self.entity_name, submit_callback=self.on_add_new_item)
+        self.form = Form(self.main_window, self.fields, "Add New " + self.entity_name,
+                         submit_callback=self.on_add_new_item)
 
     def on_add_new_item(self, item):
         uid = uuid.uuid4()

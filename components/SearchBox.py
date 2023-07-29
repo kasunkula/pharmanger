@@ -6,14 +6,14 @@ class SearchBox:
         self.frame = Frame(parent)
         self.frame.grid(row=row, column=column, columnspan=2, sticky=W)
         Label(self.frame, text=label, width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=0, column=0,
-                                                                                 pady=5, padx=5)
+                                                                                 pady=5, padx=0)
 
         self.text_box = Entry(self.frame, width=40, font=('Arial', 16, 'bold'))
         self.text_box.bind("<Key>", self.on_filter_text_change)
-        self.text_box.grid(sticky=W, row=0, column=1, pady=5, padx=5)
+        self.text_box.grid(sticky=W, row=0, column=1, pady=5, padx=0)
         self.filter_text = None
         self.list = Listbox(self.frame, width=40, selectmode=SINGLE)
-        self.list.grid(sticky=W, row=1, column=1, pady=5, padx=5)
+        self.list.grid(sticky=W, row=1, column=1, pady=5, padx=0)
         self.original_data = data
         self.data = self.original_data
         self.populate_list()

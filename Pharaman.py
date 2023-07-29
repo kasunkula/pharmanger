@@ -97,7 +97,7 @@ def inventory_dirty_callback(sender):
 
 def load_inventory(conn):
     cursor = conn.cursor()
-    statement = '''SELECT NAME, UNITS, SUPPLIER, CONTACT_NUMBER, EMAIL, ID FROM INVENTORY'''
+    statement = '''SELECT NAME, UNITS, ID FROM INVENTORY'''
     cursor.execute(statement)
 
     global inventory
@@ -153,7 +153,6 @@ def render_dashboard():
     button4 = tkinter.Button(body_frame, text='Bill', command=render_billing_window)
     button5 = tkinter.Button(body_frame, text='View Bills', command=render_view_bills_window)
     button6 = tkinter.Button(body_frame, text='Add Doctor', command=render_add_new_doctor)
-    button7 = tkinter.Button(body_frame, text='Add Supplier', command=render_add_new_doctor)
 
     button1.grid(row=0, column=0, padx=10, pady=5, sticky=W)
     button2.grid(row=1, column=0, padx=10, pady=5, sticky=W)
@@ -161,7 +160,6 @@ def render_dashboard():
     button4.grid(row=0, column=1, padx=10, pady=5, sticky=W)
     button5.grid(row=1, column=1, padx=10, pady=5, sticky=W)
     button6.grid(row=0, column=2, padx=10, pady=5, sticky=W)
-    button7.grid(row=1, column=2, padx=10, pady=5, sticky=W)
 
     dashboard.mainloop()
 

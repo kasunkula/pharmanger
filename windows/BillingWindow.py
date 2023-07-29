@@ -28,7 +28,7 @@ class BillingWindow(Window):
         self.top_frame = Frame(self.main_window, bd=10)
         self.top_frame.grid(row=0, column=0)
 
-        self.doctor_name_search_box = SearchBox.SearchBox(self.top_frame, 0, 0, "දොස්තර", self.doctors)
+        self.doctor_name_search_box = SearchBox.SearchBox(self.top_frame, 0, 0, "Physician", self.doctors)
 
         self.add_entry_frame = Frame(self.main_window, bd=10, highlightthickness=2, highlightbackground="black")
         self.add_entry_frame.grid(row=1, column=0, columnspan=2)
@@ -127,13 +127,23 @@ class BillingWindow(Window):
         from fpdf import FPDF
         pdf = FPDF()
         pdf.add_page()
-        pdf.set_font("Arial", size=12)
+        pdf.set_font("Arial", size=32)
         pdf.cell(200, 10, txt="Hello, World!", ln=True)
         pdf.output("output.pdf", 'F')
         self.print_pdf_ex("output.pdf")
 
     def print_pdf_ex(self, file_name):
         import win32print, win32api
+        GHOSTSCRIPT_PATH = r"D:\Projects\Pharmanger\dependencies\GHOSTSCRIPT\bin\gswin32.exe"
+        GSPRINT_PATH = r"D:\Projects\Pharmanger\dependencies\GSPRINT\gsprint.exe"
+
+        # currentprinter = win32print.GetDefaultPrinter()
+        # win32api.ShellExecute(0, 'open', GSPRINT_PATH,
+        #                       '-ghostscript "' + GHOSTSCRIPT_PATH + '" -printer "' + currentprinter + '" "output.pdf"',
+        #                       '.', 0)
+
+        return
+
         try:
             win32api.ShellExecute(0, "printto", file_name,
                                   '"%s"' % win32print.GetDefaultPrinter(),

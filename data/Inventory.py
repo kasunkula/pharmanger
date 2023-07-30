@@ -2,7 +2,14 @@ import uuid
 
 import defines
 from defines import DataType
-import sql_setup
+import db_schema
+from abc import ABC, abstractmethod
+
+
+class InventoryObserver(ABC):
+    @abstractmethod
+    def onInventoryUpdate(self):
+        pass
 
 
 class EntityDef:
@@ -42,39 +49,93 @@ class DoctorDef(EntityDef):
 class Inventory:
     def __init__(self, db_con):
         self.db_con = db_con
-        self.items_by_name = None
+        self.items_by_name = {}
+        self.items_by_id = {}
+        self.item_names = []
+        self.items = []
+        self.observers = []
+        self.load_inventory()
 
     def load_inventory(self):
-        cursor = self.db_con.conn.cursor()
-        statement = '''SELECT NAME, UNITS, SUPPLIER, CONTACT_NUMBER, EMAIL, ID FROM INVENTORY'''
+        cursor = self.db_con.cursor()
+        statement = '''SELECT NAME, UNITS, AVG_PRICE, COST, ALERT, CRITICAL_ALERT, ID FROM INVENTORY'''
         cursor.execute(statement)
 
-        if self.items_by_name is not None:
-            self.items_by_name.clear()
-        else:
-            self.items_by_name = {}
+        self.items_by_name.clear()
+        self.items_by_id.clear()
+        self.item_names.clear()
+        self.items.clear()
 
         records = cursor.fetchall()
         for record in records:
-            self.items_by_name[record[defines.col_index_inventory_name]] = record
+            self.add_item(record)
         cursor.close()
+        self.on_change()
+
+    def observe(self, observer):
+        self.observers.append(observer)
+
+    def add_item(self, item):
+        self.items_by_name[item[defines.col_index_inventory_name]] = item
+        self.items_by_id[item[defines.col_index_inventory_id]] = item
+        self.item_names.append(item[defines.col_index_inventory_name])
+        self.items.append(item)
+        print(item)
+        self.on_change()
+
+    def on_change(self):
+        self.item_names.sort()
+        self.items.sort(key=lambda x: x[defines.col_index_inventory_name])
+        for observer in self.observers:
+            observer.onInventoryUpdate(self)
+
+    def get_item_names(self):
+        return self.item_names
+
+    def get_items(self):
+        return self.items
 
     def add_new_item(self, item):
         try:
             uid = uuid.uuid4()
             cur = self.db_con.cursor()
-            new_item = [str(uid)]
-            new_item.extend(item)
-            print(new_item)
-            cur.execute(sql_setup.insert_statement_inventory, new_item)
+            item.append(str(uid))
+            self.add_item(item)
+            cur.execute(db_schema.insert_statement_inventory, item)
             self.db_con.commit()
-            self.inventory_dirty_callback("AddInventoryItemWindow")
+            cur.close()
             return True
         except Exception as e:
+            print(e)
             return False
 
     def add_stock(self, stock_update):
-        None
+        # Name, Stock, Cost
+        name, new_stock, new_cost = stock_update
+        current_snapshot = self.items_by_name[name]
+        item_id = current_snapshot[defines.col_index_inventory_id]
+        existing_stock = current_snapshot[defines.col_index_inventory_stock]
+        existing_cost = current_snapshot[defines.col_index_inventory_cost]
+
+        cur = self.db_con.cursor()
+        stock_update.append(str(uuid.uuid4()))
+        stock_update.append(current_snapshot[defines.col_index_inventory_id])
+        print(stock_update)
+        cur.execute(db_schema.insert_statement_stock_update, stock_update)
+        self.db_con.commit()
+        cur.close()
+
+        if existing_cost is None:
+            existing_cost = 0.0
+
+        stock = existing_stock + new_stock
+        cost = round(existing_cost + new_cost, 2)
+        avg_price = round(cost / stock, 2)
+
+        cur = self.db_con.cursor()
+        cur.execute(db_schema.update_statement_inventory, [stock, avg_price, cost, item_id])
+        self.db_con.commit()
+        cur.close()
 
     def add_bill(self, bill):
         None

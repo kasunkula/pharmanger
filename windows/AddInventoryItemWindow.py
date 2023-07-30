@@ -1,8 +1,5 @@
 import tkinter
-from tkinter import *
-import uuid
 import tkinter.messagebox
-import sql_setup
 from components.Form import Form
 from defines import DataType
 from windows.Window import Window
@@ -13,26 +10,23 @@ class AddInventoryItemWindow(Window):
         self.db_con = db_con
         self.inventory_dirty_callback = inventory_dirty_callback
         self.inventory = inventory
+        self.form = None
+        self.fields = [["Name", DataType.TEXT, True, True],
+                       ["Stock", DataType.INT, True, True],
+                       ["Cost", DataType.INT, True, True],
+                       ["Cost", DataType.DOUBLE, True, True],
+                       ["Stock Alert", DataType.INT, True, True],
+                       ["Critical Stock Alert", DataType.INT, True, True]]
         Window.__init__(self, parent, "Add New Inventory Item")
 
     def render(self):
-        self.fields = [["Name", DataType.TEXT, True, True],
-                       ["Stock", DataType.INT, True, True],
-                       ["Supplier", DataType.TEXT, True, True],
-                       ["Contact Number", DataType.TEXT, True, True],
-                       ["Email", DataType.TEXT, True, True],
-                       ]
         self.form = Form(self.main_window, self.fields, "Add New Item", submit_callback=self.on_add_new_item)
 
     def on_add_new_item(self, item):
-        uid = uuid.uuid4()
-        cur = self.db_con.cursor()
-        new_item = [str(uid)]
-        new_item.extend(item)
-        print(new_item)
-        cur.execute(sql_setup.insert_statement_inventory, new_item)
-        self.db_con.commit()
-        self.inventory_dirty_callback("AddInventoryItemWindow")
-        msg = "New Item Added to the inventory as [" + item[0] + "] with initial stock of [" + str(item[1]) + "]"
-        tkinter.messagebox.showinfo("Item Add Successful", msg)
-        self.form.render()
+        if self.inventory.add_new_item(item):
+            msg = "New Item Added to the inventory as [" + item[0] + "] with initial stock of [" + str(item[1]) + "]"
+            tkinter.messagebox.showinfo("Item Add Successful", msg)
+            self.form.render()
+        else:
+            msg = "Adding new item to inventory as [" + item[0] + "] failed. Please retry"
+            tkinter.messagebox.showinfo("Item Add Unsuccessful", msg)

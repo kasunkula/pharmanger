@@ -1,9 +1,19 @@
 from tkinter import *
 import tkinter
 import utils
+from abc import ABC, abstractmethod
 
 
-class TextInput:
+class Input(ABC):
+    @abstractmethod
+    def finalize(self):
+        pass
+
+    @abstractmethod
+    def get(self):
+        pass
+
+class TextInput(Input):
     def __init__(self, parent, row, column, label_name, must_fill=True, enabled=True, value=None):
         self.enabled = enabled
         self.must_fill = must_fill
@@ -38,7 +48,7 @@ class TextInput:
         return True, None
 
 
-class IntegerInput(TextInput):
+class IntegerInput(TextInput, Input):
     def on_key_input(self, e):
         text = utils.transform_str_on_keyboard_input(self.text_box.get(), e.char)
         if not utils.is_int(text):
@@ -53,7 +63,7 @@ class IntegerInput(TextInput):
         return int(self.text_box.get())
 
 
-class DoubleInput(TextInput):
+class DoubleInput(TextInput, Input):
     def on_key_input(self, e):
         text = utils.transform_str_on_keyboard_input(self.text_box.get(), e.char)
         if not utils.is_float(text):

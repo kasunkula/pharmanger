@@ -2,7 +2,7 @@ import tkinter
 from tkinter import *
 import uuid
 import tkinter.messagebox
-import sql_setup
+import db_schema
 from components.Form import Form
 from defines import DataType
 from windows.Window import Window
@@ -30,7 +30,7 @@ class AddEntityInstance(Window):
         new_item = [str(uid)]
         new_item.extend(item)
         print(new_item)
-        cur.execute(sql_setup.insert_statement_inventory, new_item)
+        cur.execute(db_schema.insert_statement_inventory, new_item)
         self.db_con.commit()
         self.inventory_dirty_callback("AddInventoryItemWindow")
         msg = "New Item Added to the inventory as [" + item[0] + "] with initial stock of [" + str(item[1]) + "]"

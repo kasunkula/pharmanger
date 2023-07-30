@@ -6,7 +6,7 @@ import sqlite3
 import configparser
 
 import defines
-import sql_setup
+import db_schema
 from data.Inventory import Inventory
 from windows.AddEntityInstance import AddEntityInstance
 from windows.AddInventoryItemWindow import AddInventoryItemWindow
@@ -19,7 +19,7 @@ db_file_name = None
 db_con = None
 dashboard = tkinter.Tk()
 
-inventory = {}
+inventory = None
 
 inventory_window = None
 update_stock_window = None
@@ -94,31 +94,13 @@ def inventory_dirty_callback(sender):
     if billing_window is not None:
         update_stock_window.update_inventory(inventory)
 
-
-def load_inventory(conn):
-    cursor = conn.cursor()
-    statement = '''SELECT NAME, UNITS, ID FROM INVENTORY'''
-    cursor.execute(statement)
-
-    global inventory
-
-    if inventory is not None:
-        inventory.clear()
-
-    records = cursor.fetchall()
-    for record in records:
-        inventory[record[defines.col_index_inventory_name]] = record
-
-    cursor.close()
-
-
 def render_dashboard():
-    global db_file_name, db_con
+    global db_file_name, db_con, inventory
     config = configparser.ConfigParser()
     config.read('config.txt')
     db_file_name = config['DATABASE']['db_file_name']
     drop_tables_and_recreate = False if (
-                str.lower(config['DATABASE']['drop_tables_and_recreate']) != str.lower('Yes')) else True
+            str.lower(config['DATABASE']['drop_tables_and_recreate']) != str.lower('Yes')) else True
     config_sample_data = False if (str.lower(config['DATABASE']['config_sample_data']) != str.lower('Yes')) else True
     db_con = None
 
@@ -127,18 +109,17 @@ def render_dashboard():
         print("Database [{}] exists...".format(db_file_name))
         db_con = sqlite3.connect(db_file_name)
         if drop_tables_and_recreate:
-            sql_setup.drop_tables(db_con)
-            sql_setup.create_tables(db_con)
+            db_schema.drop_tables(db_con)
+            db_schema.create_tables(db_con)
     else:
         print("Database [{}] does not exists.hence setting up with sample data".format(db_file_name))
         db_con = sqlite3.connect(db_file_name)
-        sql_setup.create_tables(db_con)
+        db_schema.create_tables(db_con)
 
     if config_sample_data:
-        sql_setup.configure_sample_data(db_con)
+        db_schema.configure_sample_data(db_con)
 
     inventory = Inventory(db_con)
-    load_inventory(db_con)
 
     dashboard.title('Dashboard')
     top_frame = Frame(dashboard)

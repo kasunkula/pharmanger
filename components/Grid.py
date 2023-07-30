@@ -46,17 +46,15 @@ class Grid:
                 last_grid_column_index = column_index
             if self.row_expand:
                 last_grid_column_index += 1
-                expand_row_button = Button(self.data_rows_frame, text="View", width=6,
-                                           font=('Arial', 12),
+                expand_row_button = Button(self.data_rows_frame, text="View", width=6, font=('Arial', 12),
                                            command=partial(self.on_expand_grid_entry, row_index))
-                expand_row_button.grid(sticky=E, row=row_index, column=last_grid_column_index, pady=5, padx=5)
+                expand_row_button.grid(sticky=E, row=row_index, column=last_grid_column_index, pady=5, padx=0)
 
             if self.row_delete_enabled:
                 last_grid_column_index += 1
-                delete_row_button = Button(self.data_rows_frame, text="Remove", width=6,
-                                           font=('Arial', 12),
+                delete_row_button = Button(self.data_rows_frame, text="Remove", width=6, font=('Arial', 12),
                                            command=partial(self.on_delete_grid_entry, row_index))
-                delete_row_button.grid(sticky=E, row=row_index, column=last_grid_column_index, pady=5, padx=5)
+                delete_row_button.grid(sticky=E, row=row_index, column=last_grid_column_index, pady=5, padx=0)
 
     def update_data(self, new_data):
         self.data = new_data

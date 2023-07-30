@@ -3,11 +3,13 @@ from tkinter import *
 import uuid
 import tkinter.messagebox
 
-import sql_setup
+import db_schema
 import defines
 from components import SearchBox
 import utils
+from components.Form import Form
 from windows.Window import Window
+from defines import DataType
 
 
 class StockUpdateWindow(Window):
@@ -15,6 +17,10 @@ class StockUpdateWindow(Window):
         self.inventory = inventory
         self.db_con = db_con
         self.inventory_dirty_callback = inventory_dirty_callback
+        self.fields = [["Name", DataType.SEARCH_BOX, True, None, self.inventory.get_item_names()],
+                       ["Stock", DataType.INT, True, True],
+                       ["Cost", DataType.TEXT, True, True]]
+        self.form = None
         Window.__init__(self, parent, "Update Stock")
 
     def update_inventory(self, inventory):
@@ -22,9 +28,12 @@ class StockUpdateWindow(Window):
         self.render()
 
     def render(self):
+        self.form = Form(self.main_window, self.fields, "Add New Stock", submit_callback=self.on_add_stock_update)
+        # self.render_ex()
+
+    def render_ex(self):
         Window.render(self)
-        inventory_item_list = [item[defines.col_index_inventory_name] for item in self.inventory.values()]
-        self.name_search_box = SearchBox.SearchBox(self.main_window, 1, 0, "Name", inventory_item_list)
+        self.name_search_box = SearchBox.SearchBox(self.main_window, 1, 0, "Name", self.inventory.get_item_names())
         Label(self.main_window, text="Stock", width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=2,
                                                                                          column=0,
                                                                                          pady=5, padx=0)
@@ -51,7 +60,11 @@ class StockUpdateWindow(Window):
         self.stock_update_status_label = Label(self.main_window, text="", font=('Arial', 14, 'bold'))
         self.stock_update_status_label.grid(sticky=W, row=7, column=0, pady=5, padx=0)
 
-    def on_add_stock_update(self):
+    def on_add_stock_update(self, item):
+        self.inventory.add_stock(item)
+
+
+    def on_add_stock_update_ex(self):
         stock = self.stock_update_stock.get()
         unit_price = self.stock_update_unit_price.get()
         total_amount = self.stock_update_total_amount.get()
@@ -74,16 +87,7 @@ class StockUpdateWindow(Window):
             inventory_item_id = self.inventory[inventory_item_name][defines.col_index_inventory_id]
             existing_stock = self.inventory[inventory_item_name][defines.col_index_inventory_stock]
             new_stock = existing_stock + int(stock)
-            uid = uuid.uuid4()
-            cur = self.db_con.cursor()
 
-            new_stock_update = [str(uid), inventory_item_name, inventory_item_id, int(stock),
-                                float(unit_price), float(total_amount)]
-            print(new_stock_update)
-            cur.execute(sql_setup.insert_statement_stock_update, new_stock_update)
-
-            cur.execute(sql_setup.update_statement_inventory, [new_stock, inventory_item_id])
-            self.db_con.commit()
             status = "Stock of [" + stock + "] Added to the inventory against [" + inventory_item_name + "] - updated stock [" + str(
                 new_stock) + "]"
             tkinter.messagebox.showinfo("Item Add Successful", status)

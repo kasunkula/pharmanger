@@ -7,7 +7,7 @@ import tkinter.messagebox
 # local
 from components import SearchBox, Grid
 import defines
-import sql_setup
+import db_schema
 import utils
 from windows.Window import Window
 
@@ -39,19 +39,19 @@ class BillingWindow(Window):
                                                     list(self.inventory.values())])
 
         self.label_issued_units = Label(self.add_entry_frame, text="Issued Units", width=20, font=('Arial', 16, 'bold'))
-        self.label_issued_units.grid(sticky=W, row=2, column=0, pady=5, padx=5)
+        self.label_issued_units.grid(sticky=W, row=2, column=0, pady=5, padx=0)
         self.issued_units = Entry(self.add_entry_frame, width=40, font=('Arial', 16, 'bold'))
-        self.issued_units.grid(sticky=W, row=2, column=1, pady=5, padx=5)
+        self.issued_units.grid(sticky=W, row=2, column=1, pady=5, padx=0)
 
         self.label_unit_price = Label(self.add_entry_frame, text="Unit Price", width=20, font=('Arial', 16, 'bold'))
-        self.label_unit_price.grid(sticky=W, row=3, column=0, pady=5, padx=5)
+        self.label_unit_price.grid(sticky=W, row=3, column=0, pady=5, padx=0)
         self.unit_price = Entry(self.add_entry_frame, width=40, font=('Arial', 16, 'bold'))
-        self.unit_price.grid(sticky=W, row=3, column=1, pady=5, padx=5)
+        self.unit_price.grid(sticky=W, row=3, column=1, pady=5, padx=0)
 
         self.add_item_to_bill_button = tkinter.Button(self.add_entry_frame, text="Add Item To Bill", width=20,
                                                       font=('Arial', 16, 'bold'),
                                                       command=self.on_add_bill_entry)
-        self.add_item_to_bill_button.grid(sticky=E, row=5, column=1, pady=5, padx=5)
+        self.add_item_to_bill_button.grid(sticky=E, row=5, column=1, pady=5, padx=0)
 
         self.bill_entries_frame = Frame(self.main_window, bd=10, highlightthickness=2, highlightbackground="black")
         self.bill_entries_frame.grid(row=3, column=0)
@@ -66,10 +66,10 @@ class BillingWindow(Window):
         self.add_bill_button = tkinter.Button(self.main_window, text="Add Bill", width=20,
                                               font=('Arial', 16, 'bold'),
                                               command=self.on_add_bill)
-        self.add_bill_button.grid(sticky=E, row=4, column=0, pady=5, padx=5)
+        self.add_bill_button.grid(sticky=E, row=4, column=0, pady=5, padx=0)
 
         self.status_label = Label(self.main_window, text="", font=('Arial', 14, 'bold'))
-        self.status_label.grid(sticky=W, row=5, column=0, pady=5, padx=10)
+        self.status_label.grid(sticky=W, row=5, column=0, pady=5, padx=0)
 
     def on_add_bill_entry(self):
         print("on_add_bill_entry")
@@ -114,9 +114,9 @@ class BillingWindow(Window):
             print(bill_entries)
 
             cur = self.db_con.cursor()
-            cur.execute(sql_setup.insert_statement_bill, bill)
+            cur.execute(db_schema.insert_statement_bill, bill)
             for bill_entry in bill_entries:
-                cur.execute(sql_setup.insert_statement_bill_detail, bill_entry)
+                cur.execute(db_schema.insert_statement_bill_detail, bill_entry)
             self.db_con.commit()
             self.generate_bill()
             status = "Bill Successful with {} items totaling to Rs.{}".format(len(bill_entries), total_cost)

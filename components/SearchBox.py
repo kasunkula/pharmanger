@@ -1,8 +1,10 @@
 from tkinter import *
 import utils
+from components.TextInput import Input
 
-class SearchBox:
-    def __init__(self, parent, row, column, label, data):
+
+class SearchBox(Input):
+    def __init__(self, parent, row, column, label, data, must_fill):
         self.frame = Frame(parent)
         self.frame.grid(row=row, column=column, columnspan=2, sticky=W)
         Label(self.frame, text=label, width=20, font=('Arial', 16, 'bold')).grid(sticky=W, row=0, column=0,
@@ -12,6 +14,7 @@ class SearchBox:
         self.text_box.bind("<Key>", self.on_filter_text_change)
         self.text_box.grid(sticky=W, row=0, column=1, pady=5, padx=0)
         self.filter_text = None
+        self.must_fill = must_fill
         self.list = Listbox(self.frame, width=40, selectmode=SINGLE)
         self.list.grid(sticky=W, row=1, column=1, pady=5, padx=0)
         self.original_data = data
@@ -42,3 +45,12 @@ class SearchBox:
             return None
         return self.data[self.list.curselection()[0]]
 
+    def finalize(self):
+        if self.must_fill and self.get_selection() is None:
+            return False, self.label + " can not be empty"
+        return True, None
+
+    def get(self):
+        if len(self.list.curselection()) == 0:
+            return None
+        return self.data[self.list.curselection()[0]]
